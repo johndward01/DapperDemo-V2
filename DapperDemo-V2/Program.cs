@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
+using System;
+using System.Data;
+using System.IO;
 
 namespace DapperDemo_V2
 {
@@ -6,8 +10,28 @@ namespace DapperDemo_V2
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            Console.WriteLine();
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var connString = config.GetConnectionString("DefaultConnection");
+            IDbConnection conn = new MySqlConnection(connString);
+            var repo = new DapperProductRepo(conn);
+
+
+            repo.CreateProduct("Test Computer", 1000.99, 1);
+            var products = repo.GetAllProducts();
+
+            foreach (var p in products)
+            {
+                Console.WriteLine(p.Name);
+                Console.WriteLine(p.Price);
+                Console.WriteLine(p.CategoryID);
+                Console.WriteLine();
+                Console.WriteLine();
+            }
+
         }
     }
 }
